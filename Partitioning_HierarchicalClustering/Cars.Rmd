@@ -1,6 +1,10 @@
 ---
 title: "Assignment - Partitioning and hierarchical clustering"
-output: html_notebook
+output:
+  html_document:
+    df_print: paged
+  html_notebook: default
+  pdf_document: default
 ---
 -------------------------------------------------------------------------------
 
