@@ -1,10 +1,10 @@
 ---
 title: "Assignment - Partitioning and hierarchical clustering"
 output:
+  pdf_document: default
+  html_notebook: default
   html_document:
     df_print: paged
-  html_notebook: default
-  pdf_document: default
 ---
 -------------------------------------------------------------------------------
 
@@ -438,3 +438,6 @@ plot(mona_d)
 ```
 
 After performing hierarchical clustering using the methods from the cluster package in R, a good model for outlier detection can be hclust() using the 'single' method. This can be seen from the silhouette plot and the coefficient being the highest for the 'single' method. A good model for partitioning the data into approximately equal sized groups can be the hclust() using the 'ward.D' method. This can be seen from the silhoutte plot and the coefficient value being the highest for 'ward.D'. However, hclust() using the 'mcquitty' method can also be a good model which does both the jobs, which can be seen from the silhouette method and a high coefficient value.
+```{r}
+tinytex::install_tinytex()
+```
