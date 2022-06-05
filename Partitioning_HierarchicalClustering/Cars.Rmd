@@ -1,33 +1,28 @@
 ---
-title: "Assignment - Partitioning and hierarchical clustering"
+title: "Car Pricing: Partitioning and hierarchical clustering"
 output:
-  pdf_document: default
-  html_notebook: default
   html_document:
     df_print: paged
+  html_notebook: default
+  pdf_document: default
 ---
 -------------------------------------------------------------------------------
 
 ## Loading the Data
 ```{r}
-data_assignment_1 <- read.csv(
+Cars_df <- read.csv(
   file = "C:/Users/Suma Marri/Documents/GitHub/USCars/USA_cars_datasets.csv",
   colClasses = "character"
   )
-data_assignment_1
+Cars_df
 ```
-This US Cars Dataset data is from the Kaggle Repository and was scraped from AUCTION EXPORT.com. 
+This US Cars Dataset data was scraped from AUCTION EXPORT.com. 
 The dataset includes information about 28 brands of clean and used vehicles for sale in US.
 
-For this assignment, the focus will be on price, mileage and the year of the vehicle. The analysis will be based on grouping the vehicles according to their price and mileage.
-
-Since clustering uses numeric data, lets organize the dataframe which makes more sense for the purpose of our problem.
-We can then perform analysis based on year along with grouping based on mileage and price.
-
 ```{r}
-price <- as.integer(data_assignment_1$price)
-mileage <- as.double(data_assignment_1$mileage)
-year <- as.factor(data_assignment_1$year)
+price <- as.integer(Cars_df$price)
+mileage <- as.double(Cars_df$mileage)
+year <- as.factor(Cars_df$year)
 d <- data.frame(year, mileage, price)
 d
 ```
@@ -92,7 +87,7 @@ From the plot above, we can see that k=2 clearly differentiates between high pri
 Next, we can determine the optimum number of clusters using the Elbow method.
 
 ```{r}
-set.seed(823)
+set.seed(1)
 factoextra::fviz_nbclust(
   x = scaled_d[-1],
   FUNcluster = kmeans,
@@ -102,7 +97,7 @@ factoextra::fviz_nbclust(
 Next, we can determine the optimum number of clusters using the Silhouette method.
 
 ```{r}
-set.seed(823)
+set.seed(1)
 factoextra::fviz_nbclust(
   x = scaled_d[-1],
   FUNcluster = kmeans,
@@ -112,7 +107,7 @@ factoextra::fviz_nbclust(
 Next, we can determine the optimum number of clusters using the Gap Statistic method.
 
 ```{r}
-set.seed(823)
+set.seed(1)
 clusGap_kmeans <- cluster::clusGap(
   x = scaled_d[-1],  
   FUNcluster = kmeans,  
@@ -120,7 +115,7 @@ clusGap_kmeans <- cluster::clusGap(
 fviz_gap_stat(clusGap_kmeans)
 ```
 ```{r}
-set.seed(823)
+set.seed(1)
 factoextra::fviz_nbclust(  
   x = scaled_d[-1],  
   FUNcluster = kmeans,  
@@ -213,7 +208,7 @@ Not much can be visualized by the above plot due to the size of the data.
 #### Have to reduce the size of the data to visualize better.
 
 ```{r}
-set.seed(823)
+set.seed(1)
 #Reducing the size of the randomly to visualize the dendogram
 reduced_scaled_d <- scaled_d[sample(nrow(scaled_d), 200), ]
 reduced_scaled_d
@@ -438,6 +433,3 @@ plot(mona_d)
 ```
 
 After performing hierarchical clustering using the methods from the cluster package in R, a good model for outlier detection can be hclust() using the 'single' method. This can be seen from the silhouette plot and the coefficient being the highest for the 'single' method. A good model for partitioning the data into approximately equal sized groups can be the hclust() using the 'ward.D' method. This can be seen from the silhoutte plot and the coefficient value being the highest for 'ward.D'. However, hclust() using the 'mcquitty' method can also be a good model which does both the jobs, which can be seen from the silhouette method and a high coefficient value.
-```{r}
-tinytex::install_tinytex()
-```
