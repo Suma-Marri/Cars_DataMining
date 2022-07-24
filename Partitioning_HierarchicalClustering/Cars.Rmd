@@ -12,7 +12,6 @@ output:
 ```{r}
 Cars_df <- read.csv(
   file = "C:/Users/Suma Marri/Documents/GitHub/USCars/USA_cars_datasets.csv",
-  colClasses = "character"
   )
 Cars_df
 ```
@@ -33,83 +32,52 @@ d
 ```{r}
 #Scaling the data to remove influence caused by large variance
 library(dplyr)
-scaled_d <- d%>%mutate_if(is.numeric,scale)
-scaled_d
-
-#Dropping the character variable while clustering
-#Performing k-means clustering with 2 clusters initially
-kmeans_scaled_d_2 <- kmeans(
-  x = scaled_d[-1],
-  centers = 2
-)
-kmeans_scaled_d_2
+scaled_df <- d%>%mutate_if(is.numeric,scale)
+scaled_df
 ```
 
-At this point some sort of conclusion can be drawn by looking at the centers, which look somewhat similar.
-We can see a relation between low mileage and high price along with high mileage with low price.
-Next, we can try increasing the number of clusters.
-
-```{r}
-#Performing k-means clustering with 3 clusters
-kmeans_scaled_d_3 <- kmeans(
-  x = scaled_d[-1],
-  centers = 3
-)
-kmeans_scaled_d_3
-```
-
-Increasing the number of clusters does not improve the centers for clustering. We will stick with the initial 2 clusters.
-
-#### Analysis of Optimal number of clusters
-The difference between the centers using 2 and 3 clusters is visible, however, we don't know the optimal number of clusters. For this, we can visualize the results using fviz_cluster from the factoextra package in R. This uses Principal Component analysis and plot the data points according to the first two principal components.
 
 ```{r}
 library(factoextra)
-kmeans_scaled_d_4 <- kmeans(scaled_d[-1], centers = 4)
-kmeans_scaled_d_5 <- kmeans(scaled_d[-1], centers = 5)
-kmeans_scaled_d_6 <- kmeans(scaled_d[-1], centers = 6)
-kmeans_scaled_d_7 <- kmeans(scaled_d[-1], centers = 7)
+kmeans_scaled_df_2 <- kmeans(scaled_df[-1], centers = 2)
+kmeans_scaled_df_3 <- kmeans(scaled_df[-1], centers = 3)
+kmeans_scaled_df_4 <- kmeans(scaled_df[-1], centers = 4)
+kmeans_scaled_df_5 <- kmeans(scaled_df[-1], centers = 5)
+kmeans_scaled_df_6 <- kmeans(scaled_df[-1], centers = 6)
+kmeans_scaled_df_7 <- kmeans(scaled_df[-1], centers = 7)
 
 #Plots for comparison
-p1 <- fviz_cluster(kmeans_scaled_d_2, geom = "point", data = scaled_d[-1]) + ggtitle("k = 2")
-p2 <- fviz_cluster(kmeans_scaled_d_3, geom = "point",  data = scaled_d[-1]) + ggtitle("k = 3")
-p3 <- fviz_cluster(kmeans_scaled_d_4, geom = "point",  data = scaled_d[-1]) + ggtitle("k = 4")
-p4 <- fviz_cluster(kmeans_scaled_d_5, geom = "point",  data = scaled_d[-1]) + ggtitle("k = 5")
-p5 <- fviz_cluster(kmeans_scaled_d_6, geom = "point",  data = scaled_d[-1]) + ggtitle("k = 6")
-p6 <- fviz_cluster(kmeans_scaled_d_7, geom = "point",  data = scaled_d[-1]) + ggtitle("k = 7")
+p1 <- fviz_cluster(kmeans_scaled_df_2, geom = "point", data = scaled_df[-1]) + ggtitle("k = 2")
+p2 <- fviz_cluster(kmeans_scaled_df_3, geom = "point",  data = scaled_df[-1]) + ggtitle("k = 3")
+p3 <- fviz_cluster(kmeans_scaled_df_4, geom = "point",  data = scaled_df[-1]) + ggtitle("k = 4")
+p4 <- fviz_cluster(kmeans_scaled_df_5, geom = "point",  data = scaled_df[-1]) + ggtitle("k = 5")
+p5 <- fviz_cluster(kmeans_scaled_df_6, geom = "point",  data = scaled_df[-1]) + ggtitle("k = 6")
+p6 <- fviz_cluster(kmeans_scaled_df_7, geom = "point",  data = scaled_df[-1]) + ggtitle("k = 7")
 
 library(gridExtra)
 grid.arrange(p1, p2, p3, p4, p5, p6, nrow = 2)
 ```
 
-From the plot above, we can see that k=2 clearly differentiates between high priced low mileage cars and low priced high mileage cars. However, it does not group the low priced low mileage cars. This can be caused by various reasons but one of the main reasons is the cars' value being depreciated as the years pass and the car is an older year model. Overall, k=3 is better than k=4 or k=5, since it takes in to account high priced low mileage, low priced high mileage, and low price low mileage. The data points far to the right make more sense to be in the high mileage cluster in k=3.
-
-Next, we can determine the optimum number of clusters using the Elbow method.
-
 ```{r}
 set.seed(1)
 factoextra::fviz_nbclust(
-  x = scaled_d[-1],
+  x = scaled_df[-1],
   FUNcluster = kmeans,
   method = "wss")
 ```
 
-Next, we can determine the optimum number of clusters using the Silhouette method.
-
 ```{r}
 set.seed(1)
 factoextra::fviz_nbclust(
-  x = scaled_d[-1],
+  x = scaled_df[-1],
   FUNcluster = kmeans,
   method = "silhouette")
 ```
 
-Next, we can determine the optimum number of clusters using the Gap Statistic method.
-
 ```{r}
 set.seed(1)
 clusGap_kmeans <- cluster::clusGap(
-  x = scaled_d[-1],  
+  x = scaled_df[-1],  
   FUNcluster = kmeans,  
   K.max = 12)
 fviz_gap_stat(clusGap_kmeans)
@@ -117,76 +85,57 @@ fviz_gap_stat(clusGap_kmeans)
 ```{r}
 set.seed(1)
 factoextra::fviz_nbclust(  
-  x = scaled_d[-1],  
+  x = scaled_df[-1],  
   FUNcluster = kmeans,  
   method = "gap_stat")
 ```
 
-When looking for diminishing returns to determine optimum number of clusters, the Silhoutte method suggests optimal clusters to be k=7, the centers looked similar when knmeans clustering was performed using k=2, and k=3 made the most sense in our analysis.
-
-#### Final Analysis of K-means clustering
+#### K-means clustering
 For the final analysis we can compare the results/centers for k=2, k=3, and k=7.
 
 ```{r}
-kmeans_scaled_d_2
-fviz_cluster(kmeans_scaled_d_2, geom = "point", data = scaled_d[-1]) + ggtitle("k = 2")
-kmeans_scaled_d_3
-fviz_cluster(kmeans_scaled_d_3, geom = "point", data = scaled_d[-1]) + ggtitle("k = 3")
-kmeans_scaled_d_7
-fviz_cluster(kmeans_scaled_d_7, geom = "point", data = scaled_d[-1]) + ggtitle("k = 7")
+kmeans_scaled_df_2
+fviz_cluster(kmeans_scaled_df_2, geom = "point", data = scaled_df[-1]) + ggtitle("k = 2")
+kmeans_scaled_df_3
+fviz_cluster(kmeans_scaled_df_3, geom = "point", data = scaled_df[-1]) + ggtitle("k = 3")
+kmeans_scaled_df_7
+fviz_cluster(kmeans_scaled_df_7, geom = "point", data = scaled_df[-1]) + ggtitle("k = 7")
 ```
-Even though k=7, as suggested from the silhoutte plot, does a substantial job of clustering data points separately, k=2 would make more sense for the purpose of the analysis. This is because the comparison is between high priced low mileage vehicles and low priced high mileage vehicles. Looking at the centers, they are more similar for k=2, however k=3 once again, also takes in to account low mileage low price vehicles which are older. For a more in depth analysis that would also take in to account the year and how old or new a car is, k=7 would be a more suitable choice which would factor in the conditions of the car, the brand of the car, and the state it is being sold in. Hence, for the purpose of this analysis k=2 would be the best choice.
+
 
 ### Cluster package in R
-For the next part of the analysis of the problem, k=2 will be used.
 
 #### cluster::clara()
-The cluster::clara() function is used when robustness is not needed.
 ```{r}
 clara_d <- cluster::clara(
-  x = scaled_d[-1],
+  x = scaled_df[-1],
   k = 2
 )
 plot(clara_d)
 print(clara_d)
 ```
 #### cluster::fanny()
-The cluster::fanny() function gives a likelihood of a point belonging to a cluster.
 ```{r}
 fanny_d <- cluster::fanny(
-  x = scaled_d[-1],
+  x = scaled_df[-1],
   k = 2
 )
 plot(fanny_d)
 print(fanny_d)
 ```
 #### cluster::pam()
-The cluster::pam() function, also a robust version of k-means, uses medoids and centers the observations in the dataset.
-Usually a good choice when the dataset contains outliers. This is time consuming, so other options of clustering might be better.
 ```{r}
-pam_d <- cluster::pam(scaled_d[-1],
+pam_d <- cluster::pam(scaled_df[-1],
                       k=2)
 plot(pam_d)
 print(pam_d)
 ```
-As mentioned earlier, in the analysis for this problem, k=2 would make the most sense since the comparison for groups is based on high-mileage low-price and low-price high-mileage vehicles. For a more in depth analysis that takes in to account the condition, brand, and the state the vehicle is sold in, k=7 would make more sense.
-With that in consideration, k=2 was then tested with the K-Means, and Clustering Large Application, Fuzzy Analysis Clustering, and Partitioning Around Medoids using the cluster package in R.
-Looking at the Cluster means for the algorithms, k-means(k=2) showed a clear comparison of groups for low-mileage high-price vehicles and high-mileage and low-price vehicles.
-The cluster::clara() function showed low-mileage low-price and low-mileage high price vehicle clusters.
-The cluster::fanny() function brought the centers closer in the comparison of high-mileage low-price vehicles and low-mileage high-price vehicles.
-The cluster::pam() function, even though being a robust version of k-means clustering, had the centers far off than k-means.
-The partitioning algorithm that would be best suited for this analysis is Fuzzy Analysis Clustering with k=2 since it brings the centers closer than k-means and gives us a likelihood of data points belonging to the cluster.
-
---------------------------------------------------------------------------------
-
 ## Hierarchical Clustering
 ### hclust()
-Hierarchical clustering requires a distance matrix to perform divisive clustering. 
-Setting the number of clusters to 2 and performing hierarchical clustering with original scaled data
 ```{r}
 #Creating a distance matrix for the scaled dataset used in the analysis
 dist_d <- dist(
-  x=scaled_d[-1],
+  x=scaled_df[-1],
   method = 'euclidean'
 )
 
@@ -203,24 +152,20 @@ abline(h = 2, col = 'red')
 #coefficient for clustering
 coef(hclust_d)
 ```
-Not much can be visualized by the above plot due to the size of the data.
-
-#### Have to reduce the size of the data to visualize better.
 
 ```{r}
 set.seed(1)
 #Reducing the size of the randomly to visualize the dendogram
-reduced_scaled_d <- scaled_d[sample(nrow(scaled_d), 200), ]
-reduced_scaled_d
+reduced_scaled_df <- scaled_df[sample(nrow(scaled_df), 200), ]
+reduced_scaled_df
 
 #Creating a distance matrix for the scaled dataset used in the analysis using euclidean distance
 dist_d <- dist(
-  x=reduced_scaled_d[-1],
+  x=reduced_scaled_df[-1],
   method = 'euclidian'
 )
 ```
 
-#### Performing hierarchical clustering using 'average' method. (Using the reduced size data)
 ```{r}
 hclust_d <- hclust(
   d = dist_d,
@@ -232,10 +177,7 @@ abline(h = 2.5, col = 'red')
 #coefficient for clustering
 coef(hclust_d)
 ```
-In the plot above, we can see that every data point finally merges into a single cluster with the height shown on the y-axis about 2.5, however, in this analysis we already know that the groups for comparison are high-price low-mileage vehicles and low-price high-mileage vehicles.
 
-
-Using Silhouette plots to evaluate how well each point fits with the rest of its cluster. (Using the reduced sized data)
 ```{r}
 cutree_d <- cutree(
   tree = hclust_d,
@@ -251,7 +193,6 @@ plot(
 )
 ```
 
-#### Performing hierarchical clustering using 'ward.D' method. (Using the reduced size data)
 ```{r}
 hclust_d <- hclust(
   d = dist_d,
@@ -263,7 +204,6 @@ abline(h = 2.5, col = 'red')
 #coefficient for clustering
 coef(hclust_d)
 ```
-Using Silhouette plots to evaluate how well each point fits with the rest of its cluster. (Using the reduced sized data)
 ```{r}
 cutree_d <- cutree(
   tree = hclust_d,
@@ -279,7 +219,6 @@ plot(
 )
 ```
 
-#### Performing hierarchical clustering using 'ward.D2' method. (Using the reduced size data)
 ```{r}
 hclust_d <- hclust(
   d = dist_d,
@@ -291,7 +230,6 @@ abline(h = 2.5, col = 'red')
 #coefficient for clustering
 coef(hclust_d)
 ```
-Using Silhouette plots to evaluate how well each point fits with the rest of its cluster. (Using the reduced sized data)
 ```{r}
 cutree_d <- cutree(
   tree = hclust_d,
@@ -306,7 +244,6 @@ plot(
   x = silhouette_d
 )
 ```
-#### Performing hierarchical clustering using 'complete' method. (Using the reduced size data)
 ```{r}
 hclust_d <- hclust(
   d = dist_d,
@@ -319,7 +256,6 @@ abline(h = 2.5, col = 'red')
 coef(hclust_d)
 ```
 
-Using Silhouette plots to evaluate how well each point fits with the rest of its cluster. (Using the reduced sized data)
 ```{r}
 cutree_d <- cutree(
   tree = hclust_d,
@@ -335,7 +271,6 @@ plot(
 )
 ```
 
-#### Performing hierarchical clustering using 'mcquitty' method. (Using the reduced size data)
 ```{r}
 hclust_d <- hclust(
   d = dist_d,
@@ -348,7 +283,6 @@ abline(h = 2.5, col = 'red')
 coef(hclust_d)
 ```
 
-Using Silhouette plots to evaluate how well each point fits with the rest of its cluster. (Using the reduced sized data)
 ```{r}
 cutree_d <- cutree(
   tree = hclust_d,
@@ -364,7 +298,7 @@ plot(
 )
 ```
 
-#### Performing hierarchical clustering using 'single' method. (Using the reduced size data)
+#### Performing hierarchical clustering
 ```{r}
 hclust_d <- hclust(
   d = dist_d,
@@ -377,7 +311,6 @@ abline(h = 2.5, col = 'red')
 coef(hclust_d)
 ```
 
-Using Silhouette plots to evaluate how well each point fits with the rest of its cluster. (Using the reduced sized data)
 ```{r}
 cutree_d <- cutree(
   tree = hclust_d,
@@ -392,39 +325,25 @@ plot(
   x = silhouette_d
 )
 ```
-#### Coefficients for hierarchical clustering using hclust() with the following methods:
-average = 0.9619
-ward.D  = 0.9983
-ward.D2 = 0.99256
-complete = 0.9815
-mcquitty = 0.9669013
-single = 0.902107
-
-Even though the mcquitty method has the smaller coefficient compared to other methods for clustering, it still does a fairly decent job of clustering based on approximately equal number of observations in both clusters and might detect outliers somewhat effectively. However, ward.D will do a better job at creating clusters based on equal number of observations since it has the highest coefficient.
-The smallest coefficient for hclust() hierarchical clustering using the 'single' method means that this method will do the best job of detecting outliers.
 
 ### cluster::agnes()
-Next in the analysis of the problem, agnes() function from the package cluster in R will be used for hierarchical clustering.
-The same reduced size data will be used for consistency of the analysis of hierarchical clustering algorithms.
 
 ```{r}
-agnes_d <- cluster::agnes(reduced_scaled_d[-1])
+agnes_d <- cluster::agnes(reduced_scaled_df[-1])
 plot(agnes_d)
 #coefficient for clustering
 coef(agnes_d)
 ```
 ### cluster::diana()
-Next, we will use divisive method diana() that divides data in to smaller subsets
 ```{r}
-diana_d <- cluster::diana(reduced_scaled_d[-1])
+diana_d <- cluster::diana(reduced_scaled_df[-1])
 plot(diana_d)
 #coefficient for clustering
 coef(diana_d)
 ```
 ### cluster::mona()
-Next, we will perform clustering using mona() method which is specialized for binary datasets
 ```{r}
-binary_d <- reduced_scaled_d[-1]
+binary_d <- reduced_scaled_df[-1]
 for(j in 1:ncol(binary_d)) binary_d[,j] <- as.numeric(
   binary_d[,j] > median(binary_d[,j])
 )
@@ -432,4 +351,3 @@ mona_d <- cluster::mona(binary_d)
 plot(mona_d)
 ```
 
-After performing hierarchical clustering using the methods from the cluster package in R, a good model for outlier detection can be hclust() using the 'single' method. This can be seen from the silhouette plot and the coefficient being the highest for the 'single' method. A good model for partitioning the data into approximately equal sized groups can be the hclust() using the 'ward.D' method. This can be seen from the silhoutte plot and the coefficient value being the highest for 'ward.D'. However, hclust() using the 'mcquitty' method can also be a good model which does both the jobs, which can be seen from the silhouette method and a high coefficient value.
