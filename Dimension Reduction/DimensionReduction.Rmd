@@ -9,30 +9,23 @@ output:
 
 ## Loading the Data
 ```{r}
-data_assignment_2 <- read.csv(
+Cars_df <- read.csv(
   file = "C:/Users/Suma Marri/Documents/GitHub/USCars/USA_cars_datasets.csv",
   colClasses = "character"
   )
-data_assignment_2
 ```
 
-This US Cars Dataset data is from the Kaggle Repository and was scraped from AUCTION EXPORT.com. 
+This US Cars Dataset data was scraped from AUCTION EXPORT.com. 
 The dataset includes information about 28 brands of clean and used vehicles for sale in US.
-
-For this assignment, the focus will be on the target variable as brand and the predictor variables will be mileage, year, and the price of the vehicle. The analysis will be based on predicting car brands based on a vehicle's year, price, and mileage. These make the most sense as the assumption is made that these are the attributes that anyone buying a car looks at when putting a price stamp according to the brand. For example, German vehicles are usually in the higher price bracket compared to American vehicles.
-
-Since dimension reduction uses continuous variables, lets organize the dataframe which makes more sense for the purpose of our problem. The organization will be implemented using the predictor variables listed above and dummy coding for categorical predictor variables.
-We can then perform analysis based on a new dataframe.
 
 ## Organized Dataframe and Dummy Coding
 ```{r}
-price <- as.double(data_assignment_2$price)
-mileage <- as.double(data_assignment_2$mileage)
-brand <- as.character(data_assignment_2$brand)
-year <- as.character(data_assignment_2$year)
+price <- as.double(Cars_df$price)
+mileage <- as.double(Cars_df$mileage)
+brand <- as.character(Cars_df$brand)
+year <- as.character(Cars_df$year)
 
 d <- data.frame(brand, price, mileage, year)
-d
 ```
 
 #### Treating brand, color, model, and brand as categorical/ordinal predictors (dummy coding)
@@ -40,8 +33,6 @@ d
 library(fastDummies)
 d_dummy <- dummy_cols(d, select_columns = 'year',
                       remove_selected_columns = TRUE)
-d_dummy
-dim(d_dummy)
 ```
 The result after dummy coding produces a large number of predictor columns.
 
@@ -52,7 +43,6 @@ table(d_dummy$brand)
 ```
 
 ## PCA 
-Since we are dealing with a high number of predictors and we have dummy variables as well, we can perform Principal Component Analysis to reduce the number of predictor variables. This is the first technique used in this problem for dimension reduction. Usually, dimension reduction techniques are not used on non-continuous variables, however, for the purpose of this problem, we have already encoded the non-continuous variables with dummy variables, so we can perform dimension reduction and see the results.
 
 #### Creating a color vector corresponding to the target variable
 ```{r}
@@ -75,7 +65,6 @@ round(summary(prcomp_D)$importance,2)
 biplot(prcomp_D)
 factoextra::fviz_eig(prcomp_D)
 ```
-Visualizing eigenvalues and looking at the percentage of variances explained by each principal component in the screeplot above, we can make the decision that five components are sufficient. These 5 principal component vectors can be the new predictor variables. However, we are performing a rank 2 PCA, which means we will be only looking at PC1 and PC2.
 
 #### Lets look at how well theese 2 predictors perform:
 ```{r}
@@ -122,10 +111,9 @@ plot(prcomp_D$x[,1:2],
      pch = as.character(brand),
      main = "Final Scatterplot of PCA - For Comparison")
 ```
-We can see in this Final Scatter Plot for PCA above that most of the data is clumped together where only p can be distinguished from all the points. Even though the data points are all clumped together, grouping and categories can be seen for the data points. 
 
 # t-SNE
-The second technique in this problem for dimension reduction is t-Distributed Stochastic Neighbor Embedding, which uses t-distribution.
+The second technique in this problem for dimension reduction is t-Distributed Stochastic Neighbor Embedding (t-distribution).
 
 #### t-Distributed Stochastic Neighbour Embedding Analysis (RANK 2)
 ```{r}
@@ -170,8 +158,6 @@ After the adjustment of hyperparameters for t-SNE, the data points still seem to
 ```{r}
 plot(Rtsne_d$itercosts)
 ```
-
-Convergence means, more iterations will not improve the model. The cost goes along, and then drops and stays flat.
 
 # Nonnegative matrix factorization
 The last technique for dimension reduction in this problem is nonnegative matrix factorization.
@@ -224,7 +210,4 @@ plot(basis_D,
      pch = as.character(brand),
      main = "Scatterplot for NMF - two basis vectors")
 ```
-Looking at the scatter plot above, we can see some separation between the data points. however, the data still seems to be clumped together. The numeric data was scaled in the steps above to be on a scale of 0-1, which is why the data points are flat on both axes. 
-Even though the data points are clumped together, the separation between p and the other data points is seen similar to the PCA plot above. However, PCA seemed to do a better job of grouping the p points together and separate from the rest of the data points. Whereas, t-SNE had data points all scattered throughout the plot before and after adjusting the parameters for the Rtsne function. Furthermore, although PCA had the data points clumped together, it seemed to have chunks of data points separate from each other. This can be interpreted from the analysis of predicting a car brand using price, mileage, and year. The analysis shows that different brands of cars can be in different categories, for example; High-mileage, High-price, and Latest Year.
-
-During the analysis, a key issue was highlighted, which could also be a problem in our analysis. The number of brands of cars are disproportionate, which makes this problem more complicated. A better analysis could be performed to predict brand of a car using price, mileage, and the year if the proportion of car brands were somewhat equal in the data.
+Int the scatter plot,there is some separation between the data points, but, some of the data still seems to be clumped together. PCA seemed to do a better job of grouping the p points together and separate from the rest of the data points. t-SNE had data points all scattered throughout the plot even after adjusting the parameters for the Rtsne function. Furthermore, although PCA had the data points clumped together, it seemed to have chunks of data points separate from each other. This can be interpreted from the analysis of predicting a car brand using price, mileage, and year. The analysis also shows that different brands of cars can be in different categories (High-mileage, High-price, and Latest Year). The number of brands of cars are unequal in this dataset, which makes this problem more complicated and our analysis inaccurate. A better analysis could be performed by predicting the brand of a car using price, mileage, and the year if there were a close equal number of car brands in the data.
